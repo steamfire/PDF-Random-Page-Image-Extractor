@@ -89,32 +89,29 @@ do
     #****LOOP to process the number of pages in each PDF****
     echo -n "    Outputting: "
     for ((i = 0; i < $numberOfPagesPerPDF; i++))
-     do 
-    
-        #Generate a random page number
-        RANDOMPAGENUMBER=`jot -r 1 1 $PAGECOUNT`
-        echo -n "$RANDOMPAGENUMBER, "
-        OUTPUTIMAGEFILENAME="$targetFileName--page$RANDOMPAGENUMBER.$OUTPUTIMAGEEXTENSION"
-        OUTPUTIMAGEPATH="$directoryToOutput$OUTPUTIMAGEFILENAME"
-        echo -e " Output Path: $OUTPUTIMAGEPATH"
-        OUTPUTHEADERTEXT="$targetFileName"
-        OUTPUTHEADER2TEXT="Page $RANDOMPAGENUMBER"
-        OUTPUTFOOTERTEXT="Extracted on $dateNow"
-        #Generate a jpg of the selected page without the page number appended
-        #pdftocairo -jpeg -jpegopt optimize=y -f $RANDOMPAGENUMBER -l $RANDOMPAGENUMBER -singlefile "$targetFilePath
+        do 
+            #Generate a random page number
+            RANDOMPAGENUMBER=`jot -r 1 1 $PAGECOUNT`
+            echo -n "$RANDOMPAGENUMBER, "
+            OUTPUTIMAGEFILENAME="$targetFileName--page$RANDOMPAGENUMBER.$OUTPUTIMAGEEXTENSION"
+            OUTPUTIMAGEPATH="$directoryToOutput$OUTPUTIMAGEFILENAME"
+            echo -e " Output Path: $OUTPUTIMAGEPATH"
+            OUTPUTHEADERTEXT="$targetFileName"
+            OUTPUTHEADER2TEXT="Page $RANDOMPAGENUMBER"
+            OUTPUTFOOTERTEXT="Extracted on $dateNow"
+            #Generate a jpg of the selected page without the page number appended
+            #pdftocairo -jpeg -jpegopt optimize=y -f $RANDOMPAGENUMBER -l $RANDOMPAGENUMBER -singlefile "$targetFilePath
         
-        #Generate a jpg of the selected page and output to STDOUT, processing with mogrify to add formatted text:
-        pdftocairo -png -f $RANDOMPAGENUMBER -l $RANDOMPAGENUMBER -scale-to-x $OUTPUTIMAGEWIDTH -scale-to-y -1 -singlefile "$targetFilePath" - \
-        | mogrify -font helvetica -fill orange -pointsize 36 -gravity north -write "$OUTPUTIMAGEFILENAME" -draw "text 0,10 '$OUTPUTHEADERTEXT'" \
-        -draw "text 0,50 '$OUTPUTHEADER2TEXT'"\
-         -pointsize 24 -gravity south -draw "text 0,10 '$OUTPUTFOOTERTEXT'" -quality 70 - 
+            #Generate a jpg of the selected page and output to STDOUT, processing with mogrify to add formatted text:
+            pdftocairo -png -f $RANDOMPAGENUMBER -l $RANDOMPAGENUMBER -scale-to-x $OUTPUTIMAGEWIDTH -scale-to-y -1 -singlefile "$targetFilePath" - \
+            | mogrify -font helvetica -fill orange -pointsize 36 -gravity north -write "$OUTPUTIMAGEFILENAME" -draw "text 0,10 '$OUTPUTHEADERTEXT'" \
+            -draw "text 0,50 '$OUTPUTHEADER2TEXT'"\
+             -pointsize 24 -gravity south -draw "text 0,10 '$OUTPUTFOOTERTEXT'" -quality 70 - 
     
-    
-    echo -e "$dateNow, Page:, $RANDOMPAGENUMBER, $targetFileAbsolutePath" >> pdfImageExtractionLog.txt
-    
-    done
+            #Save the date, page number, and the path to the PDF that the page was extracted from.
+            echo -e "$dateNow, Page:, $RANDOMPAGENUMBER, $targetFileAbsolutePath" >> pdfImageExtractionLog.txt
+        done
     echo -e
-    
     (( totalFiles++ ))
 done
 
