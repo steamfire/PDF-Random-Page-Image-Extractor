@@ -1,10 +1,15 @@
 #!/bin/zsh
-# This script counts the number of documents containing a certain word
+# This script selects random PDF files from a folder and all subfolders, and 
+#   extracts image(s) of random pages from the selected PDFs. Appends all image file paths
+#   to a text CSV log file.
 # 
 # Tested on OSX High Sierra 10.13.6
 # Dan Bowen steamfire@gmail.com
+# MIT License
+#
 # INPUT: list of PDF paths provided as arguments
-# OUTPUT: 
+# OUTPUT: image files, CSV text log of all runs of the command.  (previous runs will be left
+#   in the file.)
 #
 # Requires: 
 # zshell (zsh)
@@ -20,7 +25,7 @@
 
 USAGE="
 
-Usage: command numberOfPDFs numberOfPagesPerPDF InputPathToTopLevelDirectory OutputPathForImages
+Usage: PDFExportRandomPage.sh numberOfPDFs numberOfPagesPerPDF InputPathToTopLevelDirectory OutputPathForImages
 
 This requires three arguments.  a numberOfPDFs to pull randomly from the directories hierarchy, numberOfPagesPerPDF to pull randomly FROM EACH PDFs, and finally a path to the top level directory containing PDF and/or subfolders of PDFs.
 
