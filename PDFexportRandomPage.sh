@@ -25,22 +25,32 @@
 
 USAGE="
 
-Usage: PDFExportRandomPage.sh numberOfPDFs numberOfPagesPerPDF InputPathToTopLevelDirectory OutputPathForImages
+Usage: PDFExportRandomPage.sh --qtypdfs numberOfPDFs --qtypages numberOfPagesPerPDF 
+          --logdir: pathToSaveLogTo InputPathToTopLevelDirectory [OutputPathForImages]
 
-This requires three arguments.  a numberOfPDFs to pull randomly from the directories hierarchy, numberOfPagesPerPDF to pull randomly FROM EACH PDFs, and finally a path to the top level directory containing PDF and/or subfolders of PDFs.
+This requires three arguments.  a numberOfPDFs to pull randomly from the directories hierarchy, 
+numberOfPagesPerPDF to pull randomly FROM EACH PDFs, and finally a path to the top level 
+directory containing PDF and/or subfolders of PDFs.  Will default to outputting to current
+directory if none specified.
 
 Not yet sure if it works with spaces or special chars.
 This will crawl through all subdirectories to look for PDFs.
 
 "
 
-if [ $# -ne 4 ] ; then
+#Load the utility that has zparseopts in it, to parse the input arguments to the script
+zmodload zsh/zutil
+zparseopts -D -E -A  opts -qtypdfs: -qtypages: -imgdir: -logdir:
+
+#Set the output directory to current directory if none provided
+if [ $# -ne 2 ] ; then
     directoryToOutput="./"
 else
-    directoryToOutput=$4
+    directoryToOutput=$2
 fi
 
-if [ $# -lt 3 ] ; then
+#if no path was provided then print the usage information
+if [ $# -lt 1 ] ; then
     echo $USAGE
     exit 1;
 fi
@@ -51,10 +61,10 @@ OUTPUTIMAGEWIDTH=1440
 totalFiles=0
 currentFileStatus=0
 PAGECOUNT=0
-numberOfPDFs=$1
-numberOfPagesPerPDF=$2
-#textToSearchFor=$1
-directoryToCrawl=$3
+numberOfPDFs=$opts[--qtypdfs]
+numberOfPagesPerPDF=$opts[--qtypages]
+directoryToCrawl=$1
+directoryForLogFile=$opts[--logdir]
 
 dateNow=`/bin/date +"%Y-%m-%d"`
 
