@@ -22,25 +22,54 @@
 #TO DO
 #  Include input arg for pictures output directory
 
+##### NEXT LINE IS FOR DEBUGGING ONLY, DO NOT LEAVE ENABLED ####
+#set -- --pdfs 1 --pages 1 --verbose /Users/admin/Dropbox/BalloonConsulting/PDF\ Workflow\ Redevelopment\ Scratch\ Folder\ 2020/Test\ Spell\ checking/2020\ PDF\ samples
 
 USAGE="
+Program to find random PDF files and export random pages from the PDFs as image files.
 
-Usage: PDFExportRandomPage.sh --qtypdfs numberOfPDFs --qtypages numberOfPagesPerPDF 
-          --logdir: pathToSaveLogTo InputPathToTopLevelDirectory [OutputPathForImages]
+Usage: PDFExportRandomPage.sh --pdfs # --pages #  [--logdir path] [--verbose]  InputDirectory  [OutputDirectory]
 
-This requires three arguments.  a numberOfPDFs to pull randomly from the directories hierarchy, 
-numberOfPagesPerPDF to pull randomly FROM EACH PDFs, and finally a path to the top level 
-directory containing PDF and/or subfolders of PDFs.  Will default to outputting to current
-directory if none specified.
+This requires three arguments.  --pdfs, --pages, and InputDirectory
+
+    --pdfs is the quantity of PDFs that you would like it to pull randomly from the input 
+    directory and subfolders.
+    --pages is the quantity of pages to pull from each PDF
+    InputDirectory is the path to the directory containing PDFs.  
+    --logdir is the directory to output the processing log file
+    --verbose prints detailed information to STDOUT console as it progresses through 
+    the process.
+    OutputDirectory is the destination directory to place the image files.
+    
+    Will default to output images and log file to current directory.
 
 Not yet sure if it works with spaces or special chars.
 This will crawl through all subdirectories to look for PDFs.
 
 "
 
+# Use `$echoLog "whatever message here"` everywhere you print verbose logging messages to console
+# By default, it is disabled and will be enabled with the `-v` or `--verbose` flags
+declare echoLog='silentEcho'
+
+#No-op function that gets executed when verbose mode is off.
+function silentEcho() {
+    :
+}
+
+
 #Load the utility that has zparseopts in it, to parse the input arguments to the script
 zmodload zsh/zutil
-zparseopts -D -E -A  opts -qtypdfs: -qtypages: -imgdir: -logdir:
+zparseopts -D -E -A  opts -pdfs: -pages: -verbose -imgdir: -logdir:
+
+#if no path was provided then print the usage information
+if [ $# -lt 1 ] ; then
+    echo $USAGE
+    exit 1;
+fi
+
+#Check for the verbose flag in the list of arguments
+fi
 
 #Set the output directory to current directory if none provided
 if [ $# -ne 2 ] ; then
@@ -49,11 +78,8 @@ else
     directoryToOutput=$2
 fi
 
-#if no path was provided then print the usage information
-if [ $# -lt 1 ] ; then
-    echo $USAGE
-    exit 1;
-fi
+
+$echoLog -e "VERBOSE MODE ON"
 
 OUTPUTIMAGEEXTENSION="png"
 OUTPUTIMAGEWIDTH=1440
@@ -70,14 +96,14 @@ dateNow=`/bin/date +"%Y-%m-%d"`
 
 totalImagesToCreate=$numberOfPDFs*numberOfPagesPerPDF
 
-echo -e "FIGURE OUT HOW TO PASS ESCAPED FILE NAMES AS THE OUTPUT DIRECTORY PATH! NOT FINISHED"
+$echoLog -e "FIGURE OUT HOW TO PASS ESCAPED FILE NAMES AS THE OUTPUT DIRECTORY PATH! NOT FINISHED"
 
-echo -e "Directory: $directoryToCrawl \nNumber of PDFs to pull: $numberOfPDFs\nNumber of pages per PDF: $numberOfPagesPerPDF"
+$echoLog -e "Directory: $directoryToCrawl \nNumber of PDFs to pull: $numberOfPDFs\nNumber of pages per PDF: $numberOfPagesPerPDF"
 #Find files in the provided directory tree
 
 SELECTEDPDFS=`find "$directoryToCrawl" -iname '*.pdf' -print | shuf -n "$numberOfPDFs"`
 
-echo "$SELECTEDPDFS" |  while read thisLine
+$echoLog "$SELECTEDPDFS" |  while read thisLine
 
 #find "$directoryToCrawl" -iname '*.pdf' -print | sort | while read thisLine
 
@@ -86,26 +112,26 @@ do
     targetFilePath=$thisLine
     targetFileName=$targetFilePath:t
     targetFileAbsolutePath=`realpath "$targetFilePath"`
-    echo -n " $targetFileName:  "
+    $echoLog -n " $targetFileName:  "
     ##Get the text printed out of the info of the PDF file
     ##currentFileInfo=`/usr/local/bin/pdfinfo "$targetFilePath"`
     #Get page count of the current file
     PAGECOUNT=`/usr/bin/mdls -raw -name kMDItemNumberOfPages "$targetFilePath"`
-    echo -n "Total Pages in PDF: $PAGECOUNT"
+    $echoLog -n "Total Pages in PDF: $PAGECOUNT"
     #if mdls exited with an error code (greater than 1)
      if [ ${?} -gt 0 ] ; then
-         echo -e "*****  MDLS Error ${?} from $targetFilePath *****\n\n"
+         $echoLog -e "*****  MDLS Error ${?} from $targetFilePath *****\n\n"
      fi
     #****LOOP to process the number of pages in each PDF****
-    echo -n "    Outputting: "
+    $echoLog -n "    Outputting: "
     for ((i = 0; i < $numberOfPagesPerPDF; i++))
         do 
             #Generate a random page number
             RANDOMPAGENUMBER=`jot -r 1 1 $PAGECOUNT`
-            echo -n "$RANDOMPAGENUMBER, "
+            $echoLog -n "$RANDOMPAGENUMBER, "
             OUTPUTIMAGEFILENAME="$targetFileName--page$RANDOMPAGENUMBER.$OUTPUTIMAGEEXTENSION"
             OUTPUTIMAGEPATH="$directoryToOutput$OUTPUTIMAGEFILENAME"
-            echo -e " Output Path: $OUTPUTIMAGEPATH"
+            $echoLog -e " Output Path: $OUTPUTIMAGEPATH"
             OUTPUTHEADERTEXT="$targetFileName"
             OUTPUTHEADER2TEXT="Page $RANDOMPAGENUMBER"
             OUTPUTFOOTERTEXT="Extracted on $dateNow"
@@ -119,12 +145,12 @@ do
              -pointsize 24 -gravity south -draw "text 0,10 '$OUTPUTFOOTERTEXT'" -quality 70 - 
     
             #Save the date, page number, and the path to the PDF that the page was extracted from.
-            echo -e "$dateNow, Page:, $RANDOMPAGENUMBER, $targetFileAbsolutePath" >> pdfImageExtractionLog.txt
+            $echoLog -e "$dateNow, Page:, $RANDOMPAGENUMBER, $targetFileAbsolutePath" >> pdfImageExtractionLog.txt
         done
-    echo -e
+    $echoLog -e
     (( totalFiles++ ))
 done
 
 #FYI the following command won't work in the BASH shell, because bash executes a WHILE loop in a subshell, and can't modify global variables from within it.  this took forever to figure out.
 # the \a is a terminal bell beep.
-echo -e "\nTotal Files Processed: $totalFiles"
+$echoLog -e "\nTotal Files Processed: $totalFiles"
