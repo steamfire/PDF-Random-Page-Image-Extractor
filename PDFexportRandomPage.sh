@@ -69,6 +69,8 @@ if [ $# -lt 1 ] ; then
 fi
 
 #Check for the verbose flag in the list of arguments
+if [[ -n ${opts[(ie)--verbose]} ]]; then
+  echoLog='echo'
 fi
 
 #Set the output directory to current directory if none provided
