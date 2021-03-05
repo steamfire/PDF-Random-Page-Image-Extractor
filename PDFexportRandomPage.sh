@@ -21,6 +21,9 @@
 
 #TO DO
 #  Include input arg for pictures output directory
+# Output all PDF image filenames to Stdout
+#"FIGURE OUT HOW TO PASS ESCAPED FILE NAMES AS THE OUTPUT DIRECTORY PATH! NOT FINISHED"
+
 
 ##### NEXT LINE IS FOR DEBUGGING ONLY, DO NOT LEAVE ENABLED ####
 #set -- --pdfs 1 --pages 1 --verbose /Users/admin/Dropbox/BalloonConsulting/PDF\ Workflow\ Redevelopment\ Scratch\ Folder\ 2020/Test\ Spell\ checking/2020\ PDF\ samples
@@ -81,7 +84,10 @@ else
 fi
 
 
-$echoLog -e "VERBOSE MODE ON"
+$echoLog -e "VERBOSE MODE ON
+PDF Export Random Page script
+Dan Bowen 2021
+MIT License"
 
 OUTPUTIMAGEEXTENSION="png"
 OUTPUTIMAGEWIDTH=1440
@@ -98,10 +104,18 @@ dateNow=`/bin/date +"%Y-%m-%d"`
 
 totalImagesToCreate=$numberOfPDFs*numberOfPagesPerPDF
 
-$echoLog -e "FIGURE OUT HOW TO PASS ESCAPED FILE NAMES AS THE OUTPUT DIRECTORY PATH! NOT FINISHED"
 
-$echoLog -e "Directory: $directoryToCrawl \nNumber of PDFs to pull: $numberOfPDFs\nNumber of pages per PDF: $numberOfPagesPerPDF"
+$echoLog -e "
+Input Directory: $directoryToCrawl\n
+Will pull: $numberOfPagesPerPDF pages each from: $numberOfPDFs PDF files"
+$echoLog -e ""
 #Find files in the provided directory tree
+
+allPDFsFound=`find "$directoryToCrawl" -iname '*.pdf' -print`
+
+$echoLog "Total PDFs found: "
+$echoLog -e `echo "$allPDFsFound" | wc -l`
+$echoLog -e "All pdfs list: $allPDFsFound"
 
 SELECTEDPDFS=`find "$directoryToCrawl" -iname '*.pdf' -print | shuf -n "$numberOfPDFs"`
 
@@ -125,7 +139,7 @@ do
          $echoLog -e "*****  MDLS Error ${?} from $targetFilePath *****\n\n"
      fi
     #****LOOP to process the number of pages in each PDF****
-    $echoLog -n "    Outputting: "
+    $echoLog -n "    Pulling page #"
     for ((i = 0; i < $numberOfPagesPerPDF; i++))
         do 
             #Generate a random page number
