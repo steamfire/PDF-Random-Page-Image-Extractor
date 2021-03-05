@@ -31,14 +31,15 @@ set -- --pdfs 1 --pages 1 --verbose /Users/admin/Dropbox/BalloonConsulting/PDF\ 
 USAGE="
 Program to find random PDF files and export random pages from the PDFs as image files.
 
-Usage: PDFExportRandomPage.sh --pdfs # --pages #  [--logdir path] [--verbose]  InputDirectory  [OutputDirectory]
+Usage: PDFExportRandomPage.sh --pdfs # --pages #  [--img png|jpg|tiff|pdf ] [--logdir path] [--verbose]  InputDirectory  [OutputDirectory]
 
 This requires three arguments.  --pdfs, --pages, and InputDirectory
 
     --pdfs is the quantity of PDFs that you would like it to pull randomly from the input 
     directory and subfolders.
     --pages is the quantity of pages to pull from each PDF
-    InputDirectory is the path to the directory containing PDFs.  
+    InputDirectory is the path to the directory containing PDFs.
+    --img is the format to make the output images.  Common image file suffixes  work here.
     --logdir is the directory to output the processing log file
     --verbose prints detailed information to STDOUT console as it progresses through 
     the process.
@@ -63,7 +64,8 @@ function silentEcho() {
 
 #Load the utility that has zparseopts in it, to parse the input arguments to the script
 zmodload zsh/zutil
-zparseopts -D -E -A  opts -pdfs: -pages: -verbose -imgdir: -logdir:
+zparseopts -D -E -A  opts -pdfs: -pages: -img: -verbose -imgdir: -logdir:
+
 
 #if no path was provided then print the usage information
 if [ $# -lt 1 ] ; then
@@ -74,6 +76,14 @@ fi
 #Check for the verbose flag in the list of arguments
 if [[ -n ${opts[(ie)--verbose]} ]]; then
   echoLog='echo'
+fi
+
+#Check for the image format option in the list of arguments
+if [[ -n ${opts[(ie)--img]} ]]; then
+    OUTPUTIMAGEEXTENSION=$opts[--img]
+    $echoLog -e "Format: $OUTPUTIMAGEEXTENSION"
+else
+    OUTPUTIMAGEEXTENSION="png"
 fi
 
 #Set the output directory to current directory if none provided
@@ -89,7 +99,6 @@ PDF Export Random Page script
 Dan Bowen 2021
 MIT License"
 
-OUTPUTIMAGEEXTENSION="png"
 OUTPUTIMAGEWIDTH=1440
 
 totalFiles=0
