@@ -26,7 +26,7 @@
 
 
 ##### NEXT LINE IS FOR DEBUGGING ONLY, DO NOT LEAVE ENABLED ####
-#set -- --pdfs 1 --pages 1 --verbose /Users/admin/Dropbox/BalloonConsulting/PDF\ Workflow\ Redevelopment\ Scratch\ Folder\ 2020/Test\ Spell\ checking/2020\ PDF\ samples
+set -- --pdfs 1 --pages 1 --verbose /Users/admin/Dropbox/BalloonConsulting/PDF\ Workflow\ Redevelopment\ Scratch\ Folder\ 2020/Test\ Spell\ checking/2020\ PDF\ samples/
 
 USAGE="
 Program to find random PDF files and export random pages from the PDFs as image files.
@@ -95,8 +95,8 @@ OUTPUTIMAGEWIDTH=1440
 totalFiles=0
 currentFileStatus=0
 PAGECOUNT=0
-numberOfPDFs=$opts[--qtypdfs]
-numberOfPagesPerPDF=$opts[--qtypages]
+numberOfPDFs=$opts[--pdfs]
+numberOfPagesPerPDF=$opts[--pages]
 directoryToCrawl=$1
 directoryForLogFile=$opts[--logdir]
 
