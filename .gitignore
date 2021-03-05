@@ -2,3 +2,5 @@ pdfImageExtractionLog.txt
 *.pdf
 /releases
 /2020*
+*.png
+*.jpg
