@@ -31,7 +31,7 @@ set -- --pdfs 1 --pages 1 --verbose /Users/admin/Dropbox/BalloonConsulting/PDF\ 
 USAGE="
 Program to find random PDF files and export random pages from the PDFs as image files.
 
-Usage: PDFExportRandomPage.sh --pdfs # --pages #  [--img png|jpg|tiff|pdf ] [--logdir path] [--verbose]  InputDirectory  [OutputDirectory]
+Usage: PDFExportRandomPage.sh --pdfs # --pages #  [--img png|jpg|tiff|pdf ] [--logdir path] [--verbose] --dryrun InputDirectory  [OutputDirectory]
 
 This requires three arguments.  --pdfs, --pages, and InputDirectory
 
@@ -43,6 +43,7 @@ This requires three arguments.  --pdfs, --pages, and InputDirectory
     --logdir is the directory to output the processing log file
     --verbose prints detailed information to STDOUT console as it progresses through 
     the process.
+    --dryrun runs the parts that pick the files and pages, and shows the image filename that would have been created.
     OutputDirectory is the destination directory to place the image files.
     
     Will default to output images and log file to current directory.
@@ -64,7 +65,7 @@ function silentEcho() {
 
 #Load the utility that has zparseopts in it, to parse the input arguments to the script
 zmodload zsh/zutil
-zparseopts -D -E -A  opts -pdfs: -pages: -img: -verbose -imgdir: -logdir:
+zparseopts -D -E -A  opts -pdfs: -pages: -img: -verbose -dryrun -imgdir: -logdir:
 
 
 #if no path was provided then print the usage information
@@ -76,6 +77,14 @@ fi
 #Check for the verbose flag in the list of arguments
 if [[ -n ${opts[(ie)--verbose]} ]]; then
   echoLog='echo'
+fi
+
+#Check for the dryrun flag in the list of arguments
+if [[ -n ${opts[(ie)--dryrun]} ]]; then
+    dryrun=true
+    $echoLog -e "DRY RUN"
+else
+    dryrun=false
 fi
 
 #Check for the image format option in the list of arguments
@@ -160,17 +169,20 @@ do
             OUTPUTHEADERTEXT="$targetFileName"
             OUTPUTHEADER2TEXT="Page $RANDOMPAGENUMBER"
             OUTPUTFOOTERTEXT="Extracted on $dateNow"
-            #Generate a jpg of the selected page without the page number appended
-            #pdftocairo -jpeg -jpegopt optimize=y -f $RANDOMPAGENUMBER -l $RANDOMPAGENUMBER -singlefile "$targetFilePath
+            #check for dry run, if so, don't do the actual work
+            if [ "$dryRun" = false ] ; then
+                #Generate a jpg of the selected page without the page number appended
+                #pdftocairo -jpeg -jpegopt optimize=y -f $RANDOMPAGENUMBER -l $RANDOMPAGENUMBER -singlefile "$targetFilePath
         
-            #Generate a jpg of the selected page and output to STDOUT, processing with mogrify to add formatted text:
-            pdftocairo -png -f $RANDOMPAGENUMBER -l $RANDOMPAGENUMBER -scale-to-x $OUTPUTIMAGEWIDTH -scale-to-y -1 -singlefile "$targetFilePath" - \
-            | mogrify -font helvetica -fill orange -pointsize 36 -gravity north -write "$OUTPUTIMAGEFILENAME" -draw "text 0,10 '$OUTPUTHEADERTEXT'" \
-            -draw "text 0,50 '$OUTPUTHEADER2TEXT'"\
-             -pointsize 24 -gravity south -draw "text 0,10 '$OUTPUTFOOTERTEXT'" -quality 70 - 
+                #Generate a jpg of the selected page and output to STDOUT, processing with mogrify to add formatted text:
+                pdftocairo -png -f $RANDOMPAGENUMBER -l $RANDOMPAGENUMBER -scale-to-x $OUTPUTIMAGEWIDTH -scale-to-y -1 -singlefile "$targetFilePath" - \
+                | mogrify -font helvetica -fill orange -pointsize 36 -gravity north -write "$OUTPUTIMAGEFILENAME" -draw "text 0,10 '$OUTPUTHEADERTEXT'" \
+                -draw "text 0,50 '$OUTPUTHEADER2TEXT'"\
+                 -pointsize 24 -gravity south -draw "text 0,10 '$OUTPUTFOOTERTEXT'" -quality 70 - 
     
-            #Save the date, page number, and the path to the PDF that the page was extracted from.
-            $echoLog -e "$dateNow, Page:, $RANDOMPAGENUMBER, $targetFileAbsolutePath" >> pdfImageExtractionLog.txt
+                #Save the date, page number, and the path to the PDF that the page was extracted from.
+                $echoLog -e "$dateNow, Page:, $RANDOMPAGENUMBER, $targetFileAbsolutePath" >> pdfImageExtractionLog.txt
+            fi
         done
     $echoLog -e
     (( totalFiles++ ))
@@ -178,4 +190,8 @@ done
 
 #FYI the following command won't work in the BASH shell, because bash executes a WHILE loop in a subshell, and can't modify global variables from within it.  this took forever to figure out.
 # the \a is a terminal bell beep.
-$echoLog -e "\nTotal Files Processed: $totalFiles"
+if [ "$dryRun" = false ] ; then
+    $echoLog -e "\nTotal Files Processed: $totalFiles"
+else
+    $echoLog -e "\nDry Run, Total Files that WOULD HAVE BEEN Processed: $totalFiles"
+fi
