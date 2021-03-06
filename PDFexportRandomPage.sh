@@ -81,10 +81,10 @@ fi
 
 #Check for the dryrun flag in the list of arguments
 if [[ -n ${opts[(ie)--dryrun]} ]]; then
-    dryrun=true
+    dryRun=true
     $echoLog -e "DRY RUN"
 else
-    dryrun=false
+    dryRun=false
 fi
 
 #Check for the image format option in the list of arguments
