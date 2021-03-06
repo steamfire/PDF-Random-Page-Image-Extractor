@@ -90,7 +90,6 @@ fi
 #Check for the image format option in the list of arguments
 if [[ -n ${opts[(ie)--img]} ]]; then
     OUTPUTIMAGEEXTENSION=$opts[--img]
-    $echoLog -e "Format: $OUTPUTIMAGEEXTENSION"
 else
     OUTPUTIMAGEEXTENSION="png"
 fi
@@ -101,13 +100,7 @@ if [ $# -ne 2 ] ; then
 else
     directoryToOutput=$2
 fi
-
-
-$echoLog -e "VERBOSE MODE ON
-PDF Export Random Page script
-Dan Bowen 2021
-MIT License"
-
+  
 OUTPUTIMAGEWIDTH=1440
 
 totalFiles=0
@@ -130,11 +123,12 @@ else
     exit
 fi
 
-$echoLog -e "
-Input Directory: $directoryToCrawl\n
-Will pull: $numberOfPagesPerPDF pages each from: $numberOfPDFs PDF files"
-$echoLog -e ""
-#Find files in the provided directory tree
+$echoLog -e "VERBOSE MODE ON
+PDF Export Random Page script
+Dan Bowen 2021
+MIT License\n"
+$echoLog -e "Format: $OUTPUTIMAGEEXTENSION"
+$echoLog -e "\nWill pull: $numberOfPagesPerPDF pages each from: $numberOfPDFs PDF files\n"
 
 
 #Count files found
@@ -149,7 +143,7 @@ fi
 
 $echoLog -n "Total PDFs found: "
 $echoLog -e `echo "$allPDFsFound" | wc -l`
-$echoLog -e "All pdfs list: $allPDFsFound"
+#$echoLog -e "All pdfs list: $allPDFsFound"
 
 SELECTEDPDFS=`find "$directoryToCrawl" -iname '*.pdf' -print | shuf -n "$numberOfPDFs"`
 
@@ -162,7 +156,7 @@ do
     targetFilePath=$thisLine
     targetFileName=$targetFilePath:t
     targetFileAbsolutePath=`realpath "$targetFilePath"`
-    $echoLog -n " $targetFileName:  "
+    $echoLog -e "PDF Selected: $targetFileName  "
     ##Get the text printed out of the info of the PDF file
     ##currentFileInfo=`/usr/local/bin/pdfinfo "$targetFilePath"`
     #Get page count of the current file
