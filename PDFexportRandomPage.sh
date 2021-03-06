@@ -122,6 +122,13 @@ dateNow=`/bin/date +"%Y-%m-%d"`
 
 totalImagesToCreate=$numberOfPDFs*numberOfPagesPerPDF
 
+#Check if the input directory exists, exit if not
+if [ -d "$directoryToCrawl" ]; then
+    $echoLog -e "Input Directory: $directoryToCrawl\n"
+else 
+    echo "Directory Not Found: $directoryToCrawl."
+    exit
+fi
 
 $echoLog -e "
 Input Directory: $directoryToCrawl\n
@@ -129,9 +136,18 @@ Will pull: $numberOfPagesPerPDF pages each from: $numberOfPDFs PDF files"
 $echoLog -e ""
 #Find files in the provided directory tree
 
-allPDFsFound=`find "$directoryToCrawl" -iname '*.pdf' -print`
 
-$echoLog "Total PDFs found: "
+#Count files found
+allPDFsFound=`find "$directoryToCrawl" -iname '*.pdf' -print`
+qtyPDFsFound=`printf '%s' "$allPDFsFound" | wc -l`
+
+#Exit if no files were found
+if [ "$qtyPDFsFound" -lt 1 ] ; then
+    $echoLog -e "\nERROR: No PDFs found."
+    exit
+fi
+
+$echoLog -n "Total PDFs found: "
 $echoLog -e `echo "$allPDFsFound" | wc -l`
 $echoLog -e "All pdfs list: $allPDFsFound"
 
