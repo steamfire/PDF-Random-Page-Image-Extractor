@@ -146,6 +146,11 @@ $echoLog -e `echo "$allPDFsFound" | wc -l`
 
 SELECTEDPDFS=`find "$directoryToCrawl" -iname '*.pdf' -print | shuf -n "$numberOfPDFs"`
 
+    if [ ${?} -gt 0 ] ; then
+         $echoLog -e "***** Error ${?} from $SELECTEDPDFS *****\n\n"
+         exit
+     fi
+
 $echoLog "$SELECTEDPDFS" |  while read thisLine
 
 #find "$directoryToCrawl" -iname '*.pdf' -print | sort | while read thisLine
@@ -198,8 +203,7 @@ do
     (( totalFiles++ ))
 done
 
-#FYI the following command won't work in the BASH shell, because bash executes a WHILE loop in a subshell, and can't modify global variables from within it.  this took forever to figure out.
-# the \a is a terminal bell beep.
+
 if [ "$dryRun" = false ] ; then
     $echoLog -e "\nTotal Files Processed: $totalFiles"
 else
