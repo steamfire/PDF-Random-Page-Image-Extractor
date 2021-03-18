@@ -20,10 +20,9 @@
 
 
 #TO DO
-#  Include input arg for pictures output directory
 # Output all PDF image filenames to Stdout
 #"FIGURE OUT HOW TO PASS ESCAPED FILE NAMES AS THE OUTPUT DIRECTORY PATH! NOT FINISHED"
-
+# Zero pad the page numbers in image filenames
 
 ##### NEXT LINE IS FOR DEBUGGING ONLY, DO NOT LEAVE ENABLED ####
 set -- --pdfs 1 --pages 1 --verbose /Users/admin/Dropbox/BalloonConsulting/PDF\ Workflow\ Redevelopment\ Scratch\ Folder\ 2020/Test\ Spell\ checking/2020\ PDF\ samples/
@@ -167,11 +166,12 @@ do
          $echoLog -e "*****  MDLS Error ${?} from $targetFilePath *****\n\n"
      fi
     #****LOOP to process the number of pages in each PDF****
-    $echoLog -n "    Pulling page #"
+    $echoLog -e ""
     for ((i = 0; i < $numberOfPagesPerPDF; i++))
         do 
             #Generate a random page number
             RANDOMPAGENUMBER=`jot -r 1 1 $PAGECOUNT`
+            $echoLog -n "    Pulling page #"
             $echoLog -n "$RANDOMPAGENUMBER, "
             OUTPUTIMAGEFILENAME="$targetFileName--page$RANDOMPAGENUMBER.$OUTPUTIMAGEEXTENSION"
             OUTPUTIMAGEPATH="$directoryToOutput$OUTPUTIMAGEFILENAME"
