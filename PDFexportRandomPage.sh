@@ -23,9 +23,10 @@
 # Output all PDF image filenames to Stdout
 #"FIGURE OUT HOW TO PASS ESCAPED FILE NAMES AS THE OUTPUT DIRECTORY PATH! NOT FINISHED"
 # Zero pad the page numbers in image filenames
+# deal with user inputting output directory path without the trailing slash
 
 ##### NEXT LINE IS FOR DEBUGGING ONLY, DO NOT LEAVE ENABLED ####
-set -- --pdfs 1 --pages 1 --verbose /Users/admin/Dropbox/BalloonConsulting/PDF\ Workflow\ Redevelopment\ Scratch\ Folder\ 2020/Test\ Spell\ checking/2020\ PDF\ samples/
+#set -- --pdfs 1 --pages 1 --verbose /Users/admin/Dropbox/BalloonConsulting/PDF\ Workflow\ Redevelopment\ Scratch\ Folder\ 2020/Test\ Spell\ checking/2020\ PDF\ samples/
 
 USAGE="
 Program to find random PDF files and export random pages from the PDFs as image files.
